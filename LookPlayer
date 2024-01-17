@@ -1,0 +1,50 @@
+using UnityEngine;
+
+public class LookPlayer : MonoBehaviour
+{
+    public Transform playerTransform;
+    public float rotationSpeed = 5f;
+    public Vector3 rotationLimits = new Vector3(60f, 60f, 60f); // Adjust as needed
+
+    void Start()
+    {
+        if (playerTransform == null)
+        {
+            // If playerTransform is not assigned, find the player by tag
+            playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
+        }
+    }
+
+    void Update()
+    {
+        if (playerTransform != null)
+        {
+            // Calculate the direction to the player
+            Vector3 directionToPlayer = playerTransform.position - transform.position;
+
+            // Calculate the rotation based on the direction
+            Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+
+            // Convert the rotation to Euler angles
+            Vector3 targetEulerAngles = targetRotation.eulerAngles;
+
+            // Apply rotation limits
+            targetEulerAngles.x = ClampAngle(targetEulerAngles.x, -rotationLimits.x, rotationLimits.x);
+            targetEulerAngles.y = ClampAngle(targetEulerAngles.y, -rotationLimits.y, rotationLimits.y);
+            targetEulerAngles.z = ClampAngle(targetEulerAngles.z, -rotationLimits.z, rotationLimits.z);
+
+            // Apply the adjusted rotation
+            transform.rotation = Quaternion.Euler(targetEulerAngles);
+        }
+    }
+
+    // Helper method to clamp an angle between a minimum and maximum value
+    float ClampAngle(float angle, float min, float max)
+    {
+        if (angle < -360f)
+            angle += 360f;
+        if (angle > 360f)
+            angle -= 360f;
+        return Mathf.Clamp(angle, min, max);
+    }
+}
